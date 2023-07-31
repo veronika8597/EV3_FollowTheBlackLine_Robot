@@ -1,6 +1,6 @@
 #!/usr/bin/env pybricks-micropython
 from pybricks.ev3devices import Motor, ColorSensor
-from pybricks.parameters import Port
+from pybricks.parameters import Port, Direction, Color
 from pybricks.tools import wait
 from pybricks.robotics import DriveBase
 from pybricks.media.ev3dev import SoundFile
@@ -9,38 +9,37 @@ from pybricks.media.ev3dev import SoundFile
 left_motor = Motor(Port.B)
 right_motor = Motor(Port.C)
 
-# Initialize the color sensor.
+# # Initialize the color sensor.
 line_sensor = ColorSensor(Port.S3)
 
 # Initialize the drive base.
 robot = DriveBase(left_motor, right_motor, wheel_diameter=55.5, axle_track=104)
 
 # Calculate the light thresholds. Choose values based on your measurements.
-BLACK_THRESHOLD = 7
-WHITE_THRESHOLD = 78
+BLACK = 7
+WHITE = 88
 
-# Calculate the average threshold.
-threshold = (BLACK_THRESHOLD + WHITE_THRESHOLD) / 2
+# Calculate the average mid point.
+MID_POINT= (BLACK + WHITE) / 2
 
-# Set the drive speed and proportional gain.
-DRIVE_SPEED = 55
-PROPORTIONAL_GAIN = 1
+DRIVE_SPEED = 60
+KP = 1.5 
+
+while line_sensor.reflection() > 10:
+        robot.drive(DRIVE_SPEED, 0)
 
 # Start following the line endlessly.
 while True:
-    #SoundFile("path_to_music_file.wav").play()
-    # Calculate the deviation from the threshold.
-    deviation = line_sensor.reflection() - threshold
 
-    # Calculate the turn rate.
-    turn_rate = PROPORTIONAL_GAIN * deviation
+    DEVIATION =  MID_POINT - line_sensor.reflection()
+
+    TURN_RATE = KP * DEVIATION 
 
     # Set the drive base speed and turn rate.
-    robot.drive(DRIVE_SPEED, turn_rate)
-
-    # You can wait for a short time or do other things in this loop.
-    wait(10)
+    robot.drive(DRIVE_SPEED, TURN_RATE)
 
     if(line_sensor.reflection() == 0):
         robot.stop()
-    
+
+    wait(10)
+
